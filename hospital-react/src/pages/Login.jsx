@@ -16,10 +16,12 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      const res = await login(email, password);
+      if (res.role === 'ADMIN') navigate('/admin-dashboard');
+      else if (res.role === 'DOCTOR') navigate('/doctor-dashboard');
+      else navigate('/patient-dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid email or password');
+      setError(err.response?.data?.message || 'Authentication failed');
     } finally {
       setLoading(false);
     }

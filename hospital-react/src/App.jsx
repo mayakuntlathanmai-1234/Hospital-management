@@ -4,6 +4,9 @@ import { AppProvider } from './context/AppContext';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import DoctorDashboard from './pages/DoctorDashboard';
+import PatientDashboard from './pages/PatientDashboard';
 import Patients from './pages/Patients';
 import PatientForm from './pages/PatientForm';
 import Doctors from './pages/Doctors';
@@ -31,6 +34,17 @@ function AppRoutes() {
             <Routes>
               <Route path="/dashboard" element={<Dashboard />} />
               
+              {/* Explicit Role-Based Dashboards */}
+              <Route path="/admin-dashboard" element={
+                <PrivateRoute allowedRoles={['ADMIN']}><AdminDashboard /></PrivateRoute>
+              } />
+              <Route path="/doctor-dashboard" element={
+                <PrivateRoute allowedRoles={['DOCTOR']}><DoctorDashboard /></PrivateRoute>
+              } />
+              <Route path="/patient-dashboard" element={
+                <PrivateRoute allowedRoles={['PATIENT']}><PatientDashboard /></PrivateRoute>
+              } />
+
               {/* Admin & Doctor only */}
               <Route path="/patients" element={
                 <PrivateRoute allowedRoles={['ADMIN', 'DOCTOR']}><Patients /></PrivateRoute>
