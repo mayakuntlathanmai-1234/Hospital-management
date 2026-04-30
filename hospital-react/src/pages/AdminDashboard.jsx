@@ -38,13 +38,29 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      <div className="card" style={{ marginTop: '2rem' }}>
-        <div className="card-body">
-          <h3 style={{ color: 'white', marginBottom: '1rem' }}>Admin Management</h3>
-          <div className="flex-center gap-md">
-            <Link to="/patients/register" className="btn btn-white"><UserPlus size={16} /> Register Patient</Link>
-            <Link to="/doctors/add" className="btn btn-white"><Stethoscope size={16} /> Add Doctor</Link>
-            <Link to="/appointments" className="btn btn-white"><CalendarDays size={16} /> Manage Schedule</Link>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 0.5fr', gap: '1.5rem', marginTop: '2rem' }}>
+        <div className="card">
+          <div className="card-body">
+            <h3 style={{ color: 'white', marginBottom: '1.5rem' }}>Management Quick Links</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              <Link to="/patients/register" className="btn btn-white"><UserPlus size={16} /> Admit Patient</Link>
+              <Link to="/doctors/add" className="btn btn-white"><Stethoscope size={16} /> Add Specialist</Link>
+              <Link to="/appointments" className="btn btn-white"><CalendarDays size={16} /> Monitor Schedule</Link>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-body">
+            <h3 style={{ color: 'white', marginBottom: '1.5rem' }}>System Alerts</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className="badge badge-info" style={{ padding: '1rem', justifyContent: 'flex-start' }}>
+                <Activity size={16} style={{ marginRight: '0.5rem' }} /> System online & secure
+              </div>
+              <div className="badge badge-success" style={{ padding: '1rem', justifyContent: 'flex-start' }}>
+                <ShieldCheck size={16} style={{ marginRight: '0.5rem' }} /> SSL Certificate Active
+              </div>
+            </div>
           </div>
         </div>
       </div>

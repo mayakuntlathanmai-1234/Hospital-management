@@ -1,109 +1,153 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CalendarPlus, User, Stethoscope, CalendarDays, Clock, FileText, Loader2, AlertCircle } from 'lucide-react';
+import { CalendarDays, Clock, User, Stethoscope, FileText, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 
 export default function AppointmentForm() {
-  const { patients, doctors, addAppointment } = useApp();
-  const [form, setForm] = useState({ 
-    patientId: '', 
-    doctorId: '', 
-    appointmentDate: '', 
-    appointmentTime: '', 
-    status: 'Confirmed', 
-    description: '' 
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { patients, doctors, addAppointment } = useApp();
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+  
+  const [formData, setFormData] = useState({
+    patientId: '',
+    doctorId: '',
+    appointmentDate: '',
+    appointmentTime: '',
+    description: '',
+    status: 'Confirmed'
+  });
+
+  // If user is a Patient, automatically find their patient ID by email
+  useEffect(() => {
+    if (user?.role === 'PATIENT' && patients.length > 0) {
+      const me = patients.find(p => p.email === user.email);
+      if (me) {
+        setFormData(prev => ({ ...prev, patientId: me.id }));
+      }
+    }
+  }, [user, patients]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.patientId || !form.doctorId) {
-      setError('Please select both a patient and a doctor.');
-      return;
-    }
     setLoading(true);
     setError('');
+    
     try {
-      await addAppointment({
-        ...form,
-        patientId: parseInt(form.patientId),
-        doctorId: parseInt(form.doctorId)
-      });
-      navigate('/appointments');
+      await addAppointment(formData);
+      setSuccess(true);
+      setTimeout(() => navigate('/appointments'), 2000);
     } catch (err) {
-      setError(err.response?.data?.message || err.response?.data || 'Failed to book appointment');
+      setError(err.response?.data || 'Failed to book appointment. Doctor might be double-booked.');
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="flex-center" style={{ justifyContent: 'center' }}>
-      <div className="form-container anim-scale">
-        <div className="form-header">
-          <div className="form-icon" style={{ background: 'rgba(245,158,11,0.12)' }}>
-            <CalendarPlus size={28} style={{ color: 'var(--warning)' }} />
-          </div>
-          <div>
-            <h2 className="form-title">Book Appointment</h2>
-            <p className="form-subtitle">Schedule a clinical consultation between a patient and a specialist</p>
-          </div>
+  if (success) {
+    return (
+      <div className="card anim-scale flex-center" style={{ minHeight: '300px', textAlign: 'center' }}>
+        <div className="card-body">
+          <CheckCircle2 size={64} className="text-secondary" style={{ marginBottom: '1rem' }} />
+          <h2 className="section-heading">Appointment Booked!</h2>
+          <p className="text-muted">Your schedule has been updated successfully.</p>
+          <Loader2 className="anim-spin" style={{ marginTop: '1.5rem', opacity: 0.5 }} />
         </div>
-
-        {error && (
-          <div className="badge badge-danger" style={{ width: '100%', padding: '0.75rem', borderRadius: 10, marginBottom: '1.5rem', justifyContent: 'flex-start' }}>
-            <AlertCircle size={14} /> {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <div className="form-grid-2">
-            <div className="form-group">
-              <label><User size={14} /> Select Patient</label>
-              <select required value={form.patientId} onChange={e => setForm({...form, patientId: e.target.value})}>
-                <option value="">-- Choose Patient --</option>
-                {patients.map(p => <option key={p.id} value={p.id}>{p.name} (#{p.id})</option>)}
-              </select>
-            </div>
-            <div className="form-group">
-              <label><Stethoscope size={14} /> Select Doctor</label>
-              <select required value={form.doctorId} onChange={e => setForm({...form, doctorId: e.target.value})}>
-                <option value="">-- Choose Specialist --</option>
-                {doctors.map(d => <option key={d.id} value={d.id}>{d.name} ({d.specialization})</option>)}
-              </select>
-            </div>
-          </div>
-
-          <div className="form-grid-2">
-            <div className="form-group">
-              <label><CalendarDays size={14} /> Appointment Date</label>
-              <input type="date" required 
-                value={form.appointmentDate} onChange={e => setForm({...form, appointmentDate: e.target.value})} />
-            </div>
-            <div className="form-group">
-              <label><Clock size={14} /> Preferred Time</label>
-              <input type="time" required 
-                value={form.appointmentTime} onChange={e => setForm({...form, appointmentTime: e.target.value})} />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label><FileText size={14} /> Reason for Visit / Description</label>
-            <textarea placeholder="Briefly describe the symptoms or reason for clinical visit..." 
-              value={form.description} onChange={e => setForm({...form, description: e.target.value})} />
-          </div>
-
-          <div className="form-actions">
-            <button type="button" className="btn btn-white" onClick={() => navigate('/appointments')}>Cancel</button>
-            <button type="submit" className="btn btn-primary" style={{ background: 'linear-gradient(135deg,var(--warning),#D97706)' }} disabled={loading}>
-              {loading ? <Loader2 className="anim-spin" size={18} /> : <CalendarPlus size={18} />}
-              <span>{loading ? 'Booking Slot...' : 'Confirm Appointment'}</span>
-            </button>
-          </div>
-        </form>
       </div>
-    </div>
+    );
+  }
+
+  return (
+    <section className="anim-up">
+      <div className="section-header">
+        <div>
+          <h1 className="section-heading">Schedule Consultation</h1>
+          <p className="section-subheading">Book a medical appointment with our specialists.</p>
+        </div>
+      </div>
+
+      <div className="card glass">
+        <div className="card-body">
+          <form onSubmit={handleSubmit} className="grid-2">
+            
+            {/* ONLY ADMIN CAN SELECT PATIENT */}
+            {user?.role === 'ADMIN' && (
+              <div className="form-group col-2">
+                <label className="form-label"><User size={14} /> Select Patient</label>
+                <select 
+                  className="form-control"
+                  required
+                  value={formData.patientId}
+                  onChange={e => setFormData({...formData, patientId: e.target.value})}
+                >
+                  <option value="">-- Select Patient --</option>
+                  {patients.map(p => <option key={p.id} value={p.id}>{p.name} ({p.disease})</option>)}
+                </select>
+              </div>
+            )}
+
+            <div className="form-group">
+              <label className="form-label"><Stethoscope size={14} /> Select Doctor</label>
+              <select 
+                className="form-control"
+                required
+                value={formData.doctorId}
+                onChange={e => setFormData({...formData, doctorId: e.target.value})}
+              >
+                <option value="">-- Select Doctor --</option>
+                {doctors.map(d => <option key={d.id} value={d.id}>Dr. {d.name} ({d.specialization})</option>)}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label"><CalendarDays size={14} /> Appointment Date</label>
+              <input 
+                type="date" 
+                className="form-control"
+                required
+                min={new Date().toISOString().split('T')[0]}
+                value={formData.appointmentDate}
+                onChange={e => setFormData({...formData, appointmentDate: e.target.value})}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label"><Clock size={14} /> Preferred Time</label>
+              <input 
+                type="time" 
+                className="form-control"
+                required
+                value={formData.appointmentTime}
+                onChange={e => setFormData({...formData, appointmentTime: e.target.value})}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label"><FileText size={14} /> Reason for Visit</label>
+              <input 
+                type="text" 
+                className="form-control"
+                placeholder="Brief description of symptoms"
+                required
+                value={formData.description}
+                onChange={e => setFormData({...formData, description: e.target.value})}
+              />
+            </div>
+
+            {error && <div className="form-group col-2 text-danger flex-center gap-sm"><AlertCircle size={16}/> {error}</div>}
+
+            <div className="form-group col-2" style={{ marginTop: '1rem' }}>
+              <button type="submit" className="btn btn-primary btn-lg w-100" disabled={loading}>
+                {loading ? <Loader2 className="anim-spin" /> : 'Confirm Appointment'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
   );
 }
