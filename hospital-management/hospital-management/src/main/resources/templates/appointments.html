@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::section})}">
+<body>
+<section class="anim-up">
+    <div class="section-header">
+        <div>
+            <h1 class="section-heading">Appointment Schedule</h1>
+            <p class="section-subheading">Manage and synchronize all clinical consultations.</p>
+        </div>
+        <a href="/appointments/book" class="btn btn-primary">
+            <i data-lucide="calendar-plus"></i> Reserve Slot
+        </a>
+    </div>
+
+    <div class="table-container anim-scale">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date &amp; Time</th>
+                    <th>Patient</th>
+                    <th>Physician</th>
+                    <th>Status</th>
+                    <th>Notes</th>
+                    <th style="text-align:right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="appointment : ${appointments}">
+                    <td>
+                        <div class="flex-center gap-sm">
+                            <div style="min-width:50px;padding:0.5rem;background:var(--primary-tint);border-radius:10px;text-align:center;border:1px solid rgba(14,165,233,0.15);">
+                                <div style="font-size:0.65rem;font-weight:800;color:var(--primary-dark);text-transform:uppercase;" th:text="${#temporals.format(appointment.appointmentDate, 'MMM')}">APR</div>
+                                <div style="font-size:1.25rem;font-weight:800;color:var(--primary);line-height:1;" th:text="${#temporals.format(appointment.appointmentDate, 'dd')}">12</div>
+                            </div>
+                            <div>
+                                <div class="fw-700 text-sm" th:text="${appointment.appointmentDate}">2026-04-12</div>
+                                <div class="text-xs" style="color:var(--text-muted);" th:text="${appointment.appointmentTime}">10:00</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex-center gap-sm">
+                            <div class="avatar-pill" style="background:var(--primary-tint);color:var(--primary-dark);">
+                                <i data-lucide="user" style="width:14px;height:14px;"></i>
+                            </div>
+                            <span class="fw-700" style="color:var(--text-primary);" th:text="${appointment.patient != null ? appointment.patient.name : 'Unknown'}">Patient</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex-center gap-sm text-sm" style="color:var(--text-muted);">
+                            <i data-lucide="stethoscope" style="width:14px;height:14px;color:var(--secondary);"></i>
+                            <span class="fw-600" th:text="${appointment.doctor != null ? 'Dr. ' + appointment.doctor.name : 'Unassigned'}">Dr. Smith</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span th:class="${appointment.status == 'Confirmed' ? 'badge badge-success' : appointment.status == 'Pending' ? 'badge badge-warning' : 'badge badge-neutral'}">
+                            <i data-lucide="check-circle" th:if="${appointment.status == 'Confirmed'}" style="width:11px;height:11px;"></i>
+                            <i data-lucide="clock" th:if="${appointment.status == 'Pending'}" style="width:11px;height:11px;"></i>
+                            <span th:text="${appointment.status}">Pending</span>
+                        </span>
+                    </td>
+                    <td>
+                        <div style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.8rem;color:var(--text-muted);font-style:italic;" th:text="${appointment.description}">Notes...</div>
+                    </td>
+                    <td>
+                        <div style="display:flex;justify-content:flex-end;">
+                            <a th:href="@{/appointments/delete/{id}(id=${appointment.id})}"
+                               class="btn btn-white btn-icon" title="Cancel"
+                               style="color:var(--danger);"
+                               onclick="return confirm('Cancel this appointment?')">
+                                <i data-lucide="calendar-x" style="width:16px;height:16px;"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(appointments)}">
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i data-lucide="calendar" style="width:40px;height:40px;"></i>
+                            </div>
+                            <div class="empty-state-title">No Appointments Scheduled</div>
+                            <p class="empty-state-desc">No upcoming consultations on record. Reserve the first slot to begin.</p>
+                            <a href="/appointments/book" class="btn btn-primary" style="margin-top:1.5rem;">Book First Appointment</a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>

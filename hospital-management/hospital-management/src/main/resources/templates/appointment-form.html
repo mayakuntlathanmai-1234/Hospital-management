@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::section})}">
+<body>
+<section class="anim-up">
+    <div class="form-container anim-scale">
+        <div class="form-header">
+            <div class="form-icon" style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE);">
+                <i data-lucide="calendar-plus" style="width:26px;height:26px;color:var(--primary);"></i>
+            </div>
+            <div>
+                <div class="form-title">Schedule Consultation</div>
+                <div class="form-subtitle">Reserve a clinical slot for a registered patient.</div>
+            </div>
+        </div>
+
+        <form th:action="@{/appointments/save}" th:object="${appointment}" method="post">
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label><i data-lucide="user"></i> Patient</label>
+                    <select th:field="*{patient.id}" required>
+                        <option value="" disabled selected>— Select Patient —</option>
+                        <option th:each="p : ${patients}" th:value="${p.id}"
+                                th:text="${p.name} + ' (ID: ' + ${p.id} + ')'"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i data-lucide="stethoscope"></i> Assigned Physician</label>
+                    <select th:field="*{doctor.id}" required>
+                        <option value="" disabled selected>— Choose Specialist —</option>
+                        <option th:each="d : ${doctors}" th:value="${d.id}"
+                                th:text="'Dr. ' + ${d.name} + ' (' + ${d.specialization} + ')'"></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label><i data-lucide="calendar"></i> Appointment Date</label>
+                    <input type="date" th:field="*{appointmentDate}" required />
+                </div>
+                <div class="form-group">
+                    <label><i data-lucide="clock"></i> Preferred Time</label>
+                    <input type="time" th:field="*{appointmentTime}" required />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label><i data-lucide="file-edit"></i> Session Notes / Symptoms</label>
+                <textarea th:field="*{description}" rows="3"
+                          placeholder="Briefly describe the reason for this visit or primary symptoms..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label><i data-lucide="activity"></i> Booking Status</label>
+                <select th:field="*{status}">
+                    <option value="Pending">Pending Verification</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Scheduled">Scheduled</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" style="flex:2;">
+                    <i data-lucide="check-circle"></i> Confirm Reservation
+                </button>
+                <a href="/appointments" class="btn btn-white" style="flex:1;">
+                    <i data-lucide="x"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</section>
+</body>
+</html>

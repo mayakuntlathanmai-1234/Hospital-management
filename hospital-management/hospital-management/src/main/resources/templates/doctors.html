@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::section})}">
+<body>
+<section class="anim-up">
+    <div class="section-header">
+        <div>
+            <h1 class="section-heading">Medical Specialists</h1>
+            <p class="section-subheading">Our world-class team of healthcare professionals.</p>
+        </div>
+        <a href="/doctors/add" class="btn btn-secondary">
+            <i data-lucide="user-plus"></i> Onboard Specialist
+        </a>
+    </div>
+
+    <div class="stats-grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr));" th:if="${!#lists.isEmpty(doctors)}">
+        <div th:each="doctor,idx : ${doctors}" class="doctor-card anim-up" th:style="${'animation-delay:' + (idx.index * 0.08) + 's'}">
+            <div class="doctor-avatar">
+                <i data-lucide="user-circle" style="width:36px;height:36px;"></i>
+            </div>
+
+            <div class="doctor-name" th:text="'Dr. ' + ${doctor.name}">Dr. Smith</div>
+
+            <div class="doctor-spec">
+                <span class="badge badge-primary" th:text="${doctor.specialization}">Cardiology</span>
+            </div>
+
+            <div class="doctor-meta">
+                <div class="doctor-meta-item">
+                    <i data-lucide="award" style="width:15px;height:15px;color:var(--secondary);"></i>
+                    <span th:text="${doctor.experience} + ' Years Experience'">5 Years</span>
+                </div>
+                <div class="doctor-meta-item">
+                    <i data-lucide="mail" style="width:15px;height:15px;color:var(--text-muted);"></i>
+                    <span th:text="${doctor.email}">dr@hospital.com</span>
+                </div>
+            </div>
+
+            <div style="border-top:1.5px solid var(--border-subtle);padding-top:1.25rem;">
+                <a th:href="@{/doctors/delete/{id}(id=${doctor.id})}"
+                   class="btn btn-danger-ghost btn-sm" style="width:100%;"
+                   onclick="return confirm('Remove this doctor from the system?')">
+                    <i data-lucide="user-minus" style="width:15px;height:15px;"></i> Remove Specialist
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(doctors)}" class="card anim-scale" style="border-style:dashed;border-color:var(--border-subtle);">
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i data-lucide="users-2" style="width:40px;height:40px;"></i>
+            </div>
+            <div class="empty-state-title">No Specialists Registered</div>
+            <p class="empty-state-desc">Onboard your first medical specialist to start scheduling appointments and building clinical teams.</p>
+            <a href="/doctors/add" class="btn btn-secondary" style="margin-top:1.5rem;">Register Specialist</a>
+        </div>
+    </div>
+</section>
+</body>
+</html>

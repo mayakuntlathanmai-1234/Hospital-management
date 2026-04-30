@@ -1,0 +1,12 @@
+# Root Gitignore
+node_modules/
+target/
+.settings/
+.classpath
+.project
+.DS_Store
+dist/
+.env
+*.log
+.mvn/
+bin/

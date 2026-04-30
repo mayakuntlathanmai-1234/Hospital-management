@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::section})}">
+<body>
+<section class="anim-up">
+    <div class="form-container anim-scale">
+        <div class="form-header">
+            <div class="form-icon" style="background:linear-gradient(135deg,var(--primary-tint),#DBEAFE);">
+                <i data-lucide="user-plus" style="width:26px;height:26px;color:var(--primary);"></i>
+            </div>
+            <div>
+                <div class="form-title">Patient Admission</div>
+                <div class="form-subtitle">Register a new patient into the MediFlow clinical system.</div>
+            </div>
+        </div>
+
+        <form th:action="@{/patients/save}" th:object="${patient}" method="post">
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="form-group">
+                <label><i data-lucide="user"></i> Legal Full Name</label>
+                <input type="text" th:field="*{name}" placeholder="e.g. Johnathan Smith" required />
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label><i data-lucide="calendar"></i> Biological Age</label>
+                    <input type="number" th:field="*{age}" placeholder="e.g. 32" min="0" max="150" required />
+                </div>
+                <div class="form-group">
+                    <label><i data-lucide="user-circle"></i> Gender</label>
+                    <select th:field="*{gender}">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other / Prefer not to say</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label><i data-lucide="phone"></i> Contact Number</label>
+                    <input type="text" th:field="*{contactNumber}" placeholder="+91 98765 43210" required />
+                </div>
+                <div class="form-group">
+                    <label><i data-lucide="mail"></i> Email Address</label>
+                    <input type="email" th:field="*{email}" placeholder="patient@example.com" required />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label><i data-lucide="heart-pulse"></i> Chief Complaint / Primary Diagnosis</label>
+                <input type="text" th:field="*{disease}" placeholder="e.g. Persistent fever, lower back pain..." />
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" style="flex:2;">
+                    <i data-lucide="check-circle"></i> Complete Admission
+                </button>
+                <a href="/patients" class="btn btn-white" style="flex:1;">
+                    <i data-lucide="x"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</section>
+</body>
+</html>

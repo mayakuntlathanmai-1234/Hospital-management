@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="layout(content)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediFlow HMS - Advanced Hospital Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="layout-wrapper">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-logo">
+                <i data-lucide="activity" style="width:22px;height:22px;"></i>
+            </div>
+            <div>
+                <div class="brand-name">MediFlow</div>
+                <div class="brand-sub">Health Management</div>
+            </div>
+        </div>
+
+        <div class="nav-section-label">Main Menu</div>
+
+        <ul class="nav-links">
+            <li>
+                <a href="/dashboard">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="/patients">
+                    <i data-lucide="users"></i>
+                    <span>Patients</span>
+                </a>
+            </li>
+            <li>
+                <a href="/doctors">
+                    <i data-lucide="stethoscope"></i>
+                    <span>Doctors</span>
+                </a>
+            </li>
+            <li>
+                <a href="/appointments">
+                    <i data-lucide="calendar-days"></i>
+                    <span>Appointments</span>
+                </a>
+            </li>
+            <li>
+                <a href="/records">
+                    <i data-lucide="clipboard-list"></i>
+                    <span>Medical Records</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="sidebar-avatar">A</div>
+                <div>
+                    <div class="sidebar-user-name">Admin User</div>
+                    <div class="sidebar-user-role">Hospital Manager</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="top-bar-left">
+                <div class="top-bar-title">MediFlow Hospital Management</div>
+                <div class="top-bar-subtitle">System online and operational</div>
+            </div>
+            <div class="top-bar-actions">
+                <div class="top-bar-date" id="live-date">Loading...</div>
+                <button class="top-bar-icon-btn" title="Notifications">
+                    <i data-lucide="bell" style="width:18px;height:18px;"></i>
+                </button>
+                <button class="top-bar-icon-btn" title="Settings">
+                    <i data-lucide="settings" style="width:18px;height:18px;"></i>
+                </button>
+                <a href="/" class="btn btn-primary btn-sm">
+                    <i data-lucide="log-out" style="width:15px;height:15px;"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div th:replace="${content}"></div>
+        </div>
+    </main>
+</div>
+
+<script>
+    lucide.createIcons();
+
+    // Live date display
+    const dateEl = document.getElementById('live-date');
+    if (dateEl) {
+        const now = new Date();
+        dateEl.textContent = now.toLocaleDateString('en-IN', {
+            weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
+        });
+    }
+
+    // Highlight active nav link based on current URL
+    document.querySelectorAll('.nav-links a').forEach(function(link) {
+        const href = link.getAttribute('href');
+        const path = window.location.pathname;
+        if (href && path.startsWith(href) && href !== '/') {
+            link.classList.add('active');
+        } else if (href === '/' && path === '/') {
+            link.classList.add('active');
+        }
+    });
+</script>
+</body>
+</html>

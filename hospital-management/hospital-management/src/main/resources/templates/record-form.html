@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::section})}">
+<body>
+<section class="anim-up">
+    <div class="form-container anim-scale">
+        <div class="form-header">
+            <div class="form-icon" style="background:linear-gradient(135deg,var(--secondary-tint),#BBF7D0);">
+                <i data-lucide="clipboard-list" style="width:26px;height:26px;color:var(--secondary-dark);"></i>
+            </div>
+            <div>
+                <div class="form-title">Clinical Documentation</div>
+                <div class="form-subtitle">Create a detailed clinical record for a patient consultation.</div>
+            </div>
+        </div>
+
+        <form th:action="@{/records/save}" th:object="${record}" method="post">
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label><i data-lucide="user"></i> Patient Subject</label>
+                    <select th:field="*{patient.id}" required>
+                        <option value="" disabled selected>— Identify Patient —</option>
+                        <option th:each="p : ${patients}" th:value="${p.id}" th:text="${p.name}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i data-lucide="stethoscope"></i> Attending Physician</label>
+                    <select th:field="*{doctor.id}" required>
+                        <option value="" disabled selected>— Identify Specialist —</option>
+                        <option th:each="d : ${doctors}" th:value="${d.id}"
+                                th:text="'Dr. ' + ${d.name}"></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="color:var(--primary);"><i data-lucide="activity"></i> Primary Clinical Diagnosis</label>
+                <textarea th:field="*{diagnosis}" rows="3"
+                          placeholder="Document the clinical findings and primary diagnosis after assessment..."
+                          required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label style="color:var(--secondary-dark);"><i data-lucide="pill"></i> Treatment Plan &amp; Prescriptions</label>
+                <textarea th:field="*{treatment}" rows="4"
+                          placeholder="Specify medications, dosages, therapy regimens and follow-up instructions..."
+                          required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label><i data-lucide="lock"></i> Private Clinical Notes</label>
+                <textarea th:field="*{notes}" rows="2"
+                          placeholder="Internal observations, trajectory notes or confidential remarks..."></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-secondary" style="flex:2;">
+                    <i data-lucide="file-check"></i> Finalize Clinical Record
+                </button>
+                <a href="/records" class="btn btn-white" style="flex:1;">
+                    <i data-lucide="x"></i> Discard
+                </a>
+            </div>
+        </form>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::section})}">
+<body>
+<section class="anim-up">
+    <div class="section-header">
+        <div>
+            <h1 class="section-heading">Patient Directory</h1>
+            <p class="section-subheading">Manage all registered patients and their medical histories.</p>
+        </div>
+        <a href="/patients/register" class="btn btn-primary">
+            <i data-lucide="user-plus"></i> Admit New Patient
+        </a>
+    </div>
+
+    <div class="table-container anim-scale">
+        <table>
+            <thead>
+                <tr>
+                    <th width="70">Patient ID</th>
+                    <th>Patient Name</th>
+                    <th>Demographics</th>
+                    <th>Contact</th>
+                    <th>Chief Complaint</th>
+                    <th style="text-align:right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="patient : ${patients}">
+                    <td>
+                        <span class="badge badge-primary" th:text="${'#' + patient.id}">#1</span>
+                    </td>
+                    <td>
+                        <div class="flex-center gap-sm">
+                            <div class="avatar-pill"
+                                 style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE);color:#0284C7;"
+                                 th:text="${#strings.substring(patient.name,0,1)}">J</div>
+                            <div>
+                                <div class="fw-700" style="color:var(--text-primary);" th:text="${patient.name}">John Doe</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge badge-neutral" th:text="${patient.age + ' yrs • ' + patient.gender}">25 • Male</span>
+                    </td>
+                    <td>
+                        <div class="flex-center gap-sm text-sm" style="color:var(--text-muted);">
+                            <i data-lucide="phone" style="width:14px;height:14px;"></i>
+                            <span th:text="${patient.contactNumber}">+91 00000</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge badge-warning" th:text="${patient.disease}">Fever</span>
+                    </td>
+                    <td>
+                        <div style="display:flex;justify-content:flex-end;gap:0.5rem;">
+                            <a th:href="@{/records/patient/{id}(id=${patient.id})}"
+                               class="btn btn-white btn-icon" title="View Records">
+                                <i data-lucide="folder-heart" style="width:16px;height:16px;color:var(--primary);"></i>
+                            </a>
+                            <a th:href="@{/patients/delete/{id}(id=${patient.id})}"
+                               class="btn btn-white btn-icon" title="Remove Patient"
+                               style="color:var(--danger);border-color:rgba(239,68,68,0.2);"
+                               onclick="return confirm('Remove this patient? This cannot be undone.')">
+                                <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(patients)}">
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i data-lucide="users" style="width:40px;height:40px;"></i>
+                            </div>
+                            <div class="empty-state-title">No Patients Registered</div>
+                            <p class="empty-state-desc">Start by admitting your first patient into the MediFlow system.</p>
+                            <a href="/patients/register" class="btn btn-primary" style="margin-top:1.5rem;">Admit First Patient</a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>
