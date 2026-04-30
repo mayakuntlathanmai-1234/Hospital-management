@@ -34,8 +34,15 @@ export default function Layout({ children }) {
 
         <ul className="nav-links">
           <li><NavLink to="/dashboard"><LayoutDashboard /><span>Dashboard</span></NavLink></li>
-          <li><NavLink to="/patients"><Users /><span>Patients</span></NavLink></li>
-          <li><NavLink to="/doctors"><Stethoscope /><span>Doctors</span></NavLink></li>
+          
+          {(user?.role === 'ADMIN' || user?.role === 'DOCTOR') && (
+            <li><NavLink to="/patients"><Users /><span>Patients</span></NavLink></li>
+          )}
+          
+          {(user?.role === 'ADMIN' || user?.role === 'DOCTOR' || user?.role === 'PATIENT') && (
+            <li><NavLink to="/doctors"><Stethoscope /><span>Doctors</span></NavLink></li>
+          )}
+          
           <li><NavLink to="/appointments"><CalendarDays /><span>Appointments</span></NavLink></li>
           <li><NavLink to="/records"><ClipboardList /><span>Medical Records</span></NavLink></li>
         </ul>

@@ -19,6 +19,7 @@ public class PatientRestController {
     private PatientService patientService;
 
     @GetMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     public List<PatientDTO> getAllPatients() {
         return patientService.getAllPatients().stream()
                 .map(this::convertToDTO)
@@ -26,19 +27,29 @@ public class PatientRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PatientDTO> getPatientById(@PathVariable Long id) {
+    public ResponseEntity<PatientDTO> getPatientById(@PathVariable Long id, org.springframework.security.core.Authentication auth) {
         Patient patient = patientService.getPatientById(id);
         if (patient == null) return ResponseEntity.notFound().build();
+        
+        // Security check: Patients can only see their own record
+        if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_PATIENT"))) {
+            if (!patient.getEmail().equals(auth.getName())) {
+                return ResponseEntity.status(403).build();
+            }
+        }
+        
         return ResponseEntity.ok(convertToDTO(patient));
     }
 
     @PostMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
     public PatientDTO createPatient(@Valid @RequestBody PatientDTO dto) {
         Patient patient = convertToEntity(dto);
         return convertToDTO(patientService.savePatient(patient));
     }
 
     @PutMapping("/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PatientDTO> updatePatient(@PathVariable Long id, @Valid @RequestBody PatientDTO dto) {
         Patient updated = patientService.updatePatient(id, convertToEntity(dto));
         if (updated == null) return ResponseEntity.notFound().build();
@@ -46,6 +57,7 @@ public class PatientRestController {
     }
 
     @DeleteMapping("/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletePatient(@PathVariable Long id) {
         patientService.deletePatient(id);
         return ResponseEntity.noContent().build();

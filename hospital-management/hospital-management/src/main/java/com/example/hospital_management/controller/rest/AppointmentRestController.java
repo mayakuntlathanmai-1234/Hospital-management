@@ -32,8 +32,24 @@ public class AppointmentRestController {
     private DoctorService doctorService;
 
     @GetMapping
-    public List<AppointmentDTO> getAllAppointments() {
-        return appointmentService.getAllAppointments().stream()
+    public List<AppointmentDTO> getAllAppointments(org.springframework.security.core.Authentication auth) {
+        String email = auth.getName();
+        String role = auth.getAuthorities().iterator().next().getAuthority();
+
+        List<Appointment> appointments;
+        if (role.equals("ROLE_ADMIN")) {
+            appointments = appointmentService.getAllAppointments();
+        } else if (role.equals("ROLE_DOCTOR")) {
+            appointments = appointmentService.getAllAppointments().stream()
+                    .filter(a -> a.getDoctor().getEmail().equals(email))
+                    .collect(Collectors.toList());
+        } else { // ROLE_PATIENT
+            appointments = appointmentService.getAllAppointments().stream()
+                    .filter(a -> a.getPatient().getEmail().equals(email))
+                    .collect(Collectors.toList());
+        }
+
+        return appointments.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -48,24 +64,13 @@ public class AppointmentRestController {
         }
 
         LocalDate date = LocalDate.parse(dto.getAppointmentDate());
-        LocalTime time = LocalTime.parse(dto.getAppointmentTime());
-
-        if (appointmentService.isDoctorDoubleBooked(doctor, date, time)) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Doctor is already booked for this slot");
-        }
-
-        Appointment appointment = new Appointment();
-        appointment.setPatient(patient);
-        appointment.setDoctor(doctor);
-        appointment.setAppointmentDate(date);
-        appointment.setAppointmentTime(time);
-        appointment.setStatus(dto.getStatus());
-        appointment.setDescription(dto.getDescription());
-
+        // Double booking check is inside service
+        Appointment appointment = convertToEntity(dto);
         return ResponseEntity.ok(convertToDTO(appointmentService.saveAppointment(appointment)));
     }
 
     @DeleteMapping("/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     public ResponseEntity<Void> deleteAppointment(@PathVariable Long id) {
         appointmentService.deleteAppointment(id);
         return ResponseEntity.noContent().build();

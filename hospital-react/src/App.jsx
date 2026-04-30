@@ -30,14 +30,34 @@ function AppRoutes() {
           <Layout>
             <Routes>
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/patients" element={<Patients />} />
-              <Route path="/patients/register" element={<PatientForm />} />
+              
+              {/* Admin & Doctor only */}
+              <Route path="/patients" element={
+                <PrivateRoute allowedRoles={['ADMIN', 'DOCTOR']}><Patients /></PrivateRoute>
+              } />
+              
+              {/* Admin only */}
+              <Route path="/patients/register" element={
+                <PrivateRoute allowedRoles={['ADMIN']}><PatientForm /></PrivateRoute>
+              } />
+              
               <Route path="/doctors" element={<Doctors />} />
-              <Route path="/doctors/add" element={<DoctorForm />} />
+              
+              {/* Admin only */}
+              <Route path="/doctors/add" element={
+                <PrivateRoute allowedRoles={['ADMIN']}><DoctorForm /></PrivateRoute>
+              } />
+              
               <Route path="/appointments" element={<Appointments />} />
               <Route path="/appointments/book" element={<AppointmentForm />} />
+              
               <Route path="/records" element={<Records />} />
-              <Route path="/records/add" element={<RecordForm />} />
+              
+              {/* Admin & Doctor only */}
+              <Route path="/records/add" element={
+                <PrivateRoute allowedRoles={['ADMIN', 'DOCTOR']}><RecordForm /></PrivateRoute>
+              } />
+              
               <Route path="/records/patient/:patientId" element={<Records />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>

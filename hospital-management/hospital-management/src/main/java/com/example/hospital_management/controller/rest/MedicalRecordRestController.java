@@ -29,17 +29,46 @@ public class MedicalRecordRestController {
     private DoctorService doctorService;
 
     @GetMapping
-    public List<MedicalRecordDTO> getAllRecords() {
-        return medicalRecordService.getAllRecords().stream()
+    public List<MedicalRecordDTO> getAllRecords(org.springframework.security.core.Authentication auth) {
+        String email = auth.getName();
+        String role = auth.getAuthorities().iterator().next().getAuthority();
+
+        List<MedicalRecord> records;
+        if (role.equals("ROLE_ADMIN")) {
+            records = medicalRecordService.getAllRecords();
+        } else if (role.equals("ROLE_DOCTOR")) {
+            records = medicalRecordService.getAllRecords().stream()
+                    .filter(r -> r.getDoctor().getEmail().equals(email))
+                    .collect(Collectors.toList());
+        } else { // ROLE_PATIENT
+            records = medicalRecordService.getAllRecords().stream()
+                    .filter(r -> r.getPatient().getEmail().equals(email))
+                    .collect(Collectors.toList());
+        }
+
+        return records.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/patient/{id}")
-    public List<MedicalRecordDTO> getRecordsByPatient(@PathVariable Long id) {
-        return medicalRecordService.getRecordsByPatientId(id).stream()
+    public List<MedicalRecordDTO> getRecordsByPatient(@PathVariable Long id, org.springframework.security.core.Authentication auth) {
+        // Patients can only see their own records by ID check
+        List<MedicalRecordDTO> allByPatient = medicalRecordService.getRecordsByPatientId(id).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+        
+        if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_PATIENT"))) {
+            return allByPatient.stream()
+                    .filter(r -> patientsMatch(id, auth.getName()))
+                    .collect(Collectors.toList());
+        }
+        return allByPatient;
+    }
+    
+    private boolean patientsMatch(Long id, String email) {
+        Patient p = patientService.getPatientById(id);
+        return p != null && p.getEmail().equals(email);
     }
 
     @PostMapping
